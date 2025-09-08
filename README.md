@@ -13,7 +13,9 @@ A simple, interactive web tool to **encrypt and decrypt text using the Caesar Ci
 
 ## 🖼️ Demo
 
-Open `index.html` in your browser to use the tool instantly — no server setup required.
+Live demo available here 👉 [Caesar Cipher Web App](https://aniket886.github.io/Caesar_Cipher/)
+
+Or open `index.html` in your browser to use the tool instantly — no server setup required.
 
 ## 📂 Project Structure
 
