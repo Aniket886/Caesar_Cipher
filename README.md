@@ -37,7 +37,7 @@ index.html   # Main file with HTML, CSS, and JS inlined
 
 **Aniket Tegginamath**
 
-* 📧 [anikettegginamath@gmail.com](mailto:anikettegginamath@gmail.com)
+* 📧 [aniket.gmu@gmail.com](mailto:aniket.gmu@gmail.com)
 * 🌐 [Linktree](https://linktr.ee/anikettegginamath)
 * 💼 [LinkedIn](https://www.linkedin.com/in/aniket-tegginamath-420324251/)
 * 🖥️ [GitHub](https://github.com/Aniket886)
