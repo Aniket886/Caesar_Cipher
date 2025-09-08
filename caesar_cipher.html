@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Caesar Cipher — Encrypt &amp; Decrypt</title>
+  <style>
+    body{font-family:ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial;background:#0c111b;color:#e5e7eb;margin:0;line-height:1.5}
+    .container{max-width:960px;margin:24px auto;padding:0 16px 48px}
+    header,section{background:#111827;border:1px solid #1f2937;border-radius:12px;box-shadow:0 8px 24px rgba(0,0,0,.35)}
+    header{padding:24px;margin-bottom:16px}
+    main{display:grid;gap:16px}
+    .grid-2{display:grid;gap:16px}
+    @media(min-width:900px){.grid-2{grid-template-columns:1fr 1fr}}
+    label{font-weight:600;display:inline-block;margin-bottom:6px}
+    textarea,input[type="number"],input[type="range"]{width:100%;padding:12px;border:1px solid #1f2937;background:transparent;color:#e5e7eb;border-radius:10px;font-size:1rem}
+    textarea{min-height:140px;resize:vertical}
+    .row{display:flex;gap:12px;flex-wrap:wrap;align-items:center}
+    .btn{border:1px solid #1f2937;background:#0c111b;color:#e5e7eb;border-radius:10px;padding:10px 14px;font-weight:600;cursor:pointer}
+    .btn.primary{background:#60a5fa;color:#0c111b;border-color:#334155}
+    .chip{display:inline-flex;align-items:center;gap:8px;padding:8px 10px;border-radius:999px;border:1px solid #1f2937}
+    .results{display:grid;gap:10px;margin-top:12px}
+    @media(min-width:700px){.results{grid-template-columns:1fr 1fr}}
+    .result-item{border:1px solid #1f2937;background:linear-gradient(180deg,rgba(148,163,184,.06),rgba(148,163,184,0));border-radius:10px;padding:12px}
+    .sr-only{position:absolute!important;height:1px;width:1px;overflow:hidden;clip:rect(1px,1px,1px,1px);white-space:nowrap}
+    section{padding:16px}
+    footer{background:#111827;border:1px solid #1f2937;border-radius:12px;box-shadow:0 8px 24px rgba(0,0,0,.35);margin-top:24px;padding:16px;text-align:center;font-size:0.95rem;color:#9ca3af}
+    footer a{color:#60a5fa;text-decoration:none;margin:0 8px}
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>Caesar Cipher — Encrypt &amp; Decrypt</h1>
+      <p>This tool shifts letters by a fixed amount (the “shift”). It’s for learning; don’t use it to protect real data.</p>
+    </header>
+    <main class="grid-2">
+      <section>
+        <label for="inputText">Input text</label>
+        <textarea id="inputText" placeholder="Type text… e.g., Attack at dawn!"></textarea>
+        <div class="row" style="margin-top:12px">
+          <div style="flex:1 1 260px">
+            <label for="shiftNumber">Shift (−25 to +25)</label>
+            <div class="row">
+              <input id="shiftNumber" type="number" min="-25" max="25" step="1" value="3"/>
+              <input id="shiftRange" type="range" min="-25" max="25" step="1" value="3"/>
+              <button id="rot13Btn" class="btn" type="button">ROT13</button>
+            </div>
+          </div>
+          <div style="flex:1 1 220px">
+            <label class="chip"><input type="radio" name="mode" value="encrypt" checked/> Encrypt</label>
+            <label class="chip"><input type="radio" name="mode" value="decrypt"/> Decrypt</label>
+            <label class="chip"><input id="preserveCase" type="checkbox" checked/> Preserve case</label>
+          </div>
+        </div>
+        <div class="row" style="margin-top:12px">
+          <button id="runBtn" class="btn primary">Run</button>
+          <button id="copyBtn" class="btn">Copy result</button>
+          <button id="clearBtn" class="btn">Clear</button>
+          <button id="bruteforceBtn" class="btn">Try all shifts</button>
+        </div>
+      </section>
+      <section>
+        <label for="outputText">Output</label>
+        <textarea id="outputText" readonly placeholder="Your encrypted/decrypted text will appear here…"></textarea>
+        <div id="brutePanel" hidden>
+          <h2 class="sr-only">Brute-force results</h2>
+          <p>These are the 26 possibilities. Click “Use” to apply one.</p>
+          <div id="results" class="results"></div>
+        </div>
+      </section>
+    </main>
+
+    <!-- Footer / Developed By Section -->
+    <footer>
+      <p>
+        Developed by <strong>Aniket Tegginamath</strong><br/>
+        © <script>document.write(new Date().getFullYear());</script> All rights reserved.
+      </p>
+      <p>
+        <a href="mailto:anikettegginamath@gmail.com">anikettegginamath@gmail.com</a>
+      </p>
+      <p>
+        <a href="https://github.com/Aniket886" target="_blank">GitHub</a> |
+        <a href="https://www.linkedin.com/in/aniket-tegginamath-420324251/" target="_blank">LinkedIn</a> |
+        <a href="https://linktr.ee/anikettegginamath" target="_blank">Link Tree</a>
+      </p>
+    </footer>
+  </div>
+  <script>
+  (function(){
+    const $=s=>document.querySelector(s); const $$=s=>Array.from(document.querySelectorAll(s));
+    const input=$('#inputText'), output=$('#outputText'), num=$('#shiftNumber'), rng=$('#shiftRange');
+    const modes=$$('input[name="mode"]'), preserve=$('#preserveCase');
+    function norm(s){ if(!Number.isFinite(s)) return 0; s%=26; if(s<0)s+=26; return s; }
+    function caesar(t,s,pc){ s=norm(s); let r=''; for(const ch of t){ const c=ch.charCodeAt(0);
+      if(c>=65&&c<=90){ r+=String.fromCharCode(((c-65+s)%26)+65); }
+      else if(c>=97&&c<=122){ let o=String.fromCharCode(((c-97+s)%26)+97); r+=pc?o:o.toUpperCase(); }
+      else { r+=ch; } } return r; }
+    function mode(){ return modes.find(m=>m.checked)?.value||'encrypt'; }
+    function getShift(){ let v=Number(num.value); if(!Number.isFinite(v)) v=0; v=Math.max(-25,Math.min(25,Math.trunc(v))); return v; }
+    function sync(v){ num.value=String(v); rng.value=String(v); }
+    function run(){ const m=mode(); const s = m==='encrypt'?getShift():-getShift(); output.value = caesar(input.value||'', s, preserve.checked); $('#brutePanel').hidden=true; }
+    function all(){ const res=$('#results'); res.innerHTML=''; for(let s=0;s<26;s++){ const cand=caesar(input.value||'', -s, preserve.checked);
+      const d=document.createElement('div'); d.className='result-item'; d.dataset.shift=String(s);
+      d.innerHTML = '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">'
+        +'<strong>Shift '+s+'</strong><button class="btn use">Use</button></div>'
+        +'<div>'+cand.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')+'</div>'; res.appendChild(d);} $('#brutePanel').hidden=false; }
+    document.addEventListener('click',e=>{ if(e.target.id==='runBtn') run();
+      else if(e.target.id==='rot13Btn'){ sync(13); run(); }
+      else if(e.target.id==='clearBtn'){ input.value=''; output.value=''; sync(3); modes[0].checked=true; preserve.checked=true; $('#brutePanel').hidden=true; input.focus(); }
+      else if(e.target.id==='copyBtn'){ navigator.clipboard?.writeText(output.value||'').catch(()=>{}); }
+      else if(e.target.id==='bruteforceBtn'){ all(); }
+      else if(e.target.classList.contains('use')){ const s=Number(e.target.closest('.result-item').dataset.shift||'0'); modes.forEach(r=>r.checked=r.value==='decrypt'); sync(s); output.value=e.target.closest('.result-item').querySelector('div:last-child').textContent; $('#brutePanel').hidden=true; }
+    });
+    rng.addEventListener('input',()=>sync(Number(rng.value))); num.addEventListener('input',()=>sync(getShift()));
+    if(!localStorage.getItem('cc_demo')){ input.value='Attack at dawn!'; sync(3); run(); localStorage.setItem('cc_demo','1'); } else { sync(3); }
+  })();
+  </script>
+</body>
+</html>
